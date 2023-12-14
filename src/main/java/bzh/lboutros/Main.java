@@ -13,16 +13,16 @@ import java.util.concurrent.Callable;
         description = "Tests a Kafka Connect Connector SMT pipeline with a given event input.")
 public class Main implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-c", "--connector-config"}, description = "The Connector configuration file.")
+    @CommandLine.Option(names = {"-c", "--connector-config"}, description = "The Connector configuration file.", required = true)
     private String connectorConfigFile;
 
-    @CommandLine.Option(names = {"-p", "--plugin-path"}, description = "The Connector needed plugin path.")
+    @CommandLine.Option(names = {"-p", "--plugin-path"}, description = "The Connector needed plugin path.", required = true)
     private String pluginPath;
 
-    @CommandLine.Option(names = {"-i", "--input-event"}, description = "The event input file.")
+    @CommandLine.Option(names = {"-i", "--input-event"}, description = "The event input file.", required = true)
     private String inputEventFile;
 
-    @CommandLine.Option(names = {"-t", "--topic"}, description = "The event input/output topic.")
+    @CommandLine.Option(names = {"-t", "--topic"}, description = "The event input/output topic.", required = true)
     private String topic;
 
     @CommandLine.Option(names = {"--type"}, description = "source or sink connector. Default: source.")
