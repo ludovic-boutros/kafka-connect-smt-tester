@@ -1,0 +1,6 @@
+#! /bin/bash
+
+BASEDIR=$(dirname $0)
+echo "$BASEDIR"
+
+java -jar "$BASEDIR/target/kafka-connect-smt-pipeline-tester-1.0-SNAPSHOT-jar-with-dependencies.jar" "$@"
