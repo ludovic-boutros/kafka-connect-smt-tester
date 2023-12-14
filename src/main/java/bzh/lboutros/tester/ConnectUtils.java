@@ -1,4 +1,4 @@
-package bzh.lboutros.utils;
+package bzh.lboutros.tester;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -6,28 +6,25 @@ import org.apache.commons.io.IOUtils;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
-import org.apache.kafka.connect.runtime.TransformationChain;
 import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.runtime.isolation.Plugins;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.Converter;
-import org.apache.kafka.connect.transforms.Transformation;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
 import static org.apache.kafka.connect.runtime.ConnectorConfig.NAME_CONFIG;
 
 public class ConnectUtils {
-    private static final Logger log = LoggerFactory.getLogger(ConnectUtils.class);
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ConnectUtils.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
     public static Converter getConverterFromConfig(Map<String, String> props, Plugins plugins) {
@@ -35,38 +32,13 @@ public class ConnectUtils {
         return plugins.newConverter(connectorConfig, WorkerConfig.VALUE_CONVERTER_CLASS_CONFIG, Plugins.ClassLoaderUsage.CURRENT_CLASSLOADER);
     }
 
-    public static <T extends ConnectRecord<T>> TransformationChain<T> getRecordTransformationChain(Map<String, String> props, Plugins plugins) {
-        ConnectorConfig connectorConfig = new ConnectorConfig(plugins, props);
-
-        List<Transformation<T>> transformations = connectorConfig.transformations();
-        return new TransformationChain<>(transformations, null) {
-            @Override
-            public T apply(T record) {
-                for (final Transformation<T> transformation : transformations) {
-                    final T current = record;
-
-                    log.info("Applying transformation {} to {}",
-                            transformation.getClass().getName(), record);
-                    // execute the operation
-                    record = transformation.apply(current);
-
-                    if (record == null) break;
-                }
-
-                return record;
-            }
-        };
-    }
 
     private static byte[] getInputEventAsBytes(String filename) throws IOException {
-        return IOUtils.toByteArray(
-                Objects.requireNonNull(ConnectUtils.class.getResourceAsStream("/" + filename)));
+        return getStringFromResourceOrFile(filename).getBytes(StandardCharsets.UTF_8);
     }
 
     public static Map<?, ?> getJsonFileAsMap(String filename) throws IOException {
-        String excpectedString = IOUtils.toString(
-                Objects.requireNonNull(ConnectUtils.class.getResourceAsStream("/" + filename)),
-                StandardCharsets.UTF_8);
+        String excpectedString = getStringFromResourceOrFile(filename);
         return OBJECT_MAPPER.readValue(excpectedString, TreeMap.class);
     }
 
@@ -87,33 +59,36 @@ public class ConnectUtils {
         return OBJECT_MAPPER.writeValueAsString(getResultOutputEventAsMap(result, converter));
     }
 
-    public static <T extends ConnectRecord<T>> T transformDataFromFile(Supplier<T> connectRecordSupplier,
-                                                                       TransformationChain<T> transformationChain) throws IOException {
-
-
-        return transformationChain.apply(connectRecordSupplier.get());
-    }
-
 
     public static Map<String, String> getConnectorConfigAsMap(String filename) throws IOException {
-        String excpectedString = IOUtils.toString(
-                Objects.requireNonNull(ConnectUtils.class.getResourceAsStream("/" + filename)),
-                StandardCharsets.UTF_8);
+        String excpectedString = getStringFromResourceOrFile(filename);
+
         JsonConnectorConfig jsonConnectorConfig = OBJECT_MAPPER.readValue(excpectedString, JsonConnectorConfig.class);
         Map<String, String> config = jsonConnectorConfig.getConfig();
         config.put(NAME_CONFIG, jsonConnectorConfig.getName());
         return config;
     }
 
-    public static class SourceRecordSupplier implements Supplier<SourceRecord> {
-        private final String filename;
-        private final String topic;
-        private final Converter converter;
+    private static String getStringFromResourceOrFile(String filename) throws IOException {
+        String excpectedString = null;
+        try (InputStream stream = ConnectUtils.class.getResourceAsStream("/" + filename)) {
+            if (stream != null) {
+                excpectedString = IOUtils.toString(stream, StandardCharsets.UTF_8);
+            }
+        }
+        if (excpectedString == null) {
+            log.info("Cannot load classpath file, trying with a standard file.");
+            excpectedString = IOUtils.toString(new FileInputStream(filename), StandardCharsets.UTF_8);
+        }
+        return excpectedString;
+    }
 
-        public SourceRecordSupplier(String topic, String filename, Converter converter) {
-            this.topic = topic;
-            this.filename = filename;
-            this.converter = converter;
+    public static class SourceRecordSupplier implements RecordSupplier<SourceRecord> {
+        private String filename;
+        private String topic;
+        private Converter converter;
+
+        public SourceRecordSupplier() {
         }
 
         @Override
@@ -133,17 +108,34 @@ public class ConnectUtils {
                 throw new RuntimeException(e);
             }
         }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+
+        public void setTopic(String topic) {
+            this.topic = topic;
+        }
+
+        public void setConverter(Converter converter) {
+            this.converter = converter;
+        }
     }
 
-    public static class SinkRecordSupplier implements Supplier<SinkRecord> {
-        private final String filename;
-        private final String topic;
-        private final Converter converter;
+    public interface RecordSupplier<T extends ConnectRecord<T>> extends Supplier<T> {
+        void setFilename(String filename);
 
-        public SinkRecordSupplier(String topic, String filename, Converter converter) {
-            this.topic = topic;
-            this.filename = filename;
-            this.converter = converter;
+        void setTopic(String topic);
+
+        void setConverter(Converter converter);
+    }
+
+    public static class SinkRecordSupplier implements RecordSupplier<SinkRecord> {
+        private String filename;
+        private String topic;
+        private Converter converter;
+
+        public SinkRecordSupplier() {
         }
 
         @Override
@@ -162,6 +154,18 @@ public class ConnectUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+
+        public void setTopic(String topic) {
+            this.topic = topic;
+        }
+
+        public void setConverter(Converter converter) {
+            this.converter = converter;
         }
     }
 }

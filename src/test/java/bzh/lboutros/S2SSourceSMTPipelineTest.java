@@ -1,14 +1,15 @@
 package bzh.lboutros;
 
-import bzh.lboutros.utils.ConnectUtils;
-import bzh.lboutros.utils.SMTPipelineTestBase;
+import bzh.lboutros.tester.ConnectUtils.SourceRecordSupplier;
+import bzh.lboutros.tester.Result;
+import bzh.lboutros.tester.SMTPipelineTestBase;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static bzh.lboutros.utils.ConnectUtils.getJsonFileAsNormalizedPrettyString;
+import static bzh.lboutros.tester.ConnectUtils.getJsonFileAsNormalizedPrettyString;
 
 
 public class S2SSourceSMTPipelineTest extends SMTPipelineTestBase<SourceRecord> {
@@ -27,14 +28,10 @@ public class S2SSourceSMTPipelineTest extends SMTPipelineTestBase<SourceRecord> 
         String expectedTopic = "splunk._internal_servers";
 
         // When
-        SourceRecord result = super.transformDataFromFile(
-                new ConnectUtils.SourceRecordSupplier(inputTopic, inputFilename, super.getConverter()));
-
-        String resultTopic = result.topic();
-        String output = super.getResultOutputEventAsNormalizedPrettyString(result);
+        Result result = super.transformDataFromFile(inputTopic, inputFilename, new SourceRecordSupplier());
 
         // Then
-        Assertions.assertEquals(expectedTopic, resultTopic);
-        Assertions.assertEquals(expectedOutput, output);
+        Assertions.assertEquals(expectedTopic, result.getTopic());
+        Assertions.assertEquals(expectedOutput, result.getValue());
     }
 }

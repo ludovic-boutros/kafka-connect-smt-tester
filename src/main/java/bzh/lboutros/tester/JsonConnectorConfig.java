@@ -1,4 +1,4 @@
-package bzh.lboutros.utils;
+package bzh.lboutros.tester;
 
 import java.util.Map;
 

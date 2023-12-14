@@ -1,14 +1,15 @@
 package bzh.lboutros;
 
-import bzh.lboutros.utils.ConnectUtils;
-import bzh.lboutros.utils.SMTPipelineTestBase;
+import bzh.lboutros.tester.ConnectUtils;
+import bzh.lboutros.tester.Result;
+import bzh.lboutros.tester.SMTPipelineTestBase;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static bzh.lboutros.utils.ConnectUtils.getJsonFileAsNormalizedPrettyString;
+import static bzh.lboutros.tester.ConnectUtils.getJsonFileAsNormalizedPrettyString;
 
 public class SplunkHECSinkSMTPipelineTest extends SMTPipelineTestBase<SinkRecord> {
     @Override
@@ -24,12 +25,9 @@ public class SplunkHECSinkSMTPipelineTest extends SMTPipelineTestBase<SinkRecord
         String expectedOutput = getJsonFileAsNormalizedPrettyString("internal-server-splunk-input-event.json");
 
         // When
-        SinkRecord result = transformDataFromFile(
-                new ConnectUtils.SinkRecordSupplier(inputTopic, inputFilename, super.getConverter()));
-
-        String output = getResultOutputEventAsNormalizedPrettyString(result);
+        Result result = super.transformDataFromFile(inputTopic, inputFilename, new ConnectUtils.SinkRecordSupplier());
 
         // Then
-        Assertions.assertEquals(expectedOutput, output);
+        Assertions.assertEquals(expectedOutput, result.getValue());
     }
 }

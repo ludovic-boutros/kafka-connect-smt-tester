@@ -2,7 +2,7 @@
   "event": "12-12-2023 15:24:07.871 +0100 INFO  TcpOutputProc - Connected to idx=XX.XX.XX.XX:9998, pset=0, reuse=0.",
   "host": "my_host",
   "source": "/somewhere/splunkd.log",
-  "index": "_internal_servers",
+  "index": "kafka-_internal_servers",
   "sourcetype": "splunkd",
   "fields": {
     "aws_instanceid": "i-XXXXXXXX",
