@@ -1,0 +1,1 @@
+Unzip Kafka Connect SMT plugins here.

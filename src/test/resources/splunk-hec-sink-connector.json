@@ -1,0 +1,29 @@
+{
+  "name": "SplunkHECSinkConnector",
+  "config": {
+    "connector.class": "com.splunk.kafka.connect.SplunkSinkConnector",
+    "consumer.override.partition.assignment.strategy": "org.apache.kafka.clients.consumer.CooperativeStickyAssignor",
+    "tasks.max": "6",
+    "topics.regex": "splunk\\..*",
+    "splunk.hec.uri": "https://XX.XX.XX.XX:8088",
+    "splunk.indexes": "main",
+    "splunk.hec.json.event.formatted": "true",
+    "splunk.hec.ssl.validate.certs": "false",
+    "splunk.hec.token": "${securepass:/var/ssl/private/kafka-connect-security.properties:hec-connector.properties/splunk.hec.token}",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "splunk.hec.use.record.timestamp": "false",
+    "enable.timestamp.extraction": "false",
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "errors.deadletterqueue.topic.name": "internal.splunk.global.dlq",
+    "splunk.hec.auto.extract.timestamp": "true",
+    "splunk.hec.ack.enabled": "true",
+    "splunk.hec.max.outstanding.events": "50000",
+    "splunk.hec.max.retries": "-1",
+    "splunk.hec.backoff.threshhold.seconds": "60",
+    "splunk.hec.threads": "1"
+  }
+}
