@@ -1,5 +1,5 @@
 {
-  "name": "SplunkS2SSourceConnector_9997",
+  "name": "SplunkS2SSourceConnector",
   "config": {
     "connector.class": "io.confluent.connect.splunk.s2s.SplunkS2SSourceConnector",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",

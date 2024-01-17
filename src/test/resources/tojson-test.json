@@ -1,9 +1,0 @@
-{
-  "topic": "_internal_servers",
-  "headers": {
-  },
-  "key": "my_key",
-  "value": {
-    "toto": "{ \"value\": \"toto\" }"
-  }
-}
