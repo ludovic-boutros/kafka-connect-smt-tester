@@ -1,3 +1,9 @@
+# The project
+
+Testing Kafka Connect transforms is not easy. This project aims to provide a simple way to test Kafka Connect
+transforms.
+You can use it as a CLI or as a library for unit testing.
+
 # Prerequisites
 
 First you need to unzip kafka connect transforms in the `connect-plugins` directory.
