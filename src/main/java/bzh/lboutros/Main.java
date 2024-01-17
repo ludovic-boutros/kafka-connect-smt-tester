@@ -1,8 +1,10 @@
 package bzh.lboutros;
 
 import bzh.lboutros.tester.ConnectUtils;
-import bzh.lboutros.tester.Result;
 import bzh.lboutros.tester.SMTPipelineTester;
+import bzh.lboutros.tester.record.Record;
+import bzh.lboutros.tester.record.SinkRecordSupplier;
+import bzh.lboutros.tester.record.SourceRecordSupplier;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 import picocli.CommandLine;
@@ -22,34 +24,36 @@ public class Main implements Callable<Integer> {
     @CommandLine.Option(names = {"-i", "--input-event"}, description = "The event input file.", required = true)
     private String inputEventFile;
 
-    @CommandLine.Option(names = {"-t", "--topic"}, description = "The event input/output topic.", required = true)
-    private String topic;
-
     @CommandLine.Option(names = {"--type"}, description = "source or sink connector. Default: source.")
     private String type = "source";
 
     @Override
     public Integer call() throws Exception {
-        Result result;
+        Record record;
         if (type.equals("source")) {
             try (SMTPipelineTester<SourceRecord> tester = new SMTPipelineTester<>(pluginPath, connectorConfigFile)) {
-                result = tester.transformDataFromFile(topic, inputEventFile, new ConnectUtils.SourceRecordSupplier());
+                SourceRecordSupplier recordSupplier = new SourceRecordSupplier(inputEventFile);
+                record = tester.transformDataFromFile(recordSupplier);
             }
         } else if (type.equals("sink")) {
             try (SMTPipelineTester<SinkRecord> tester = new SMTPipelineTester<>(pluginPath, connectorConfigFile)) {
-                result = tester.transformDataFromFile(topic, inputEventFile, new ConnectUtils.SinkRecordSupplier());
-
+                SinkRecordSupplier recordSupplier = new SinkRecordSupplier(inputEventFile);
+                record = tester.transformDataFromFile(recordSupplier);
             }
         } else {
             System.err.println("Invalid type: " + type);
             return 1;
         }
-        String inputEvent = ConnectUtils.getJsonFileAsNormalizedPrettyString(inputEventFile);
-        System.out.println("Input topic: " + topic);
-        System.out.println("Input event:\n" + inputEvent);
-        System.out.println("Result topic: " + result.getTopic());
-        System.out.println("Result event:\n" + result.getValue());
+        Record recordFromFile = ConnectUtils.getRecordFromFile(inputEventFile);
+        System.out.println("Input topic: " + recordFromFile.getTopic());
+        System.out.println("Input headers:\n" + recordFromFile.getHeaders());
+        System.out.println("Input key:\n" + recordFromFile.getKey());
+        System.out.println("Input event:\n" + recordFromFile.getValue());
 
+        System.out.println("Result topic: " + record.getTopic());
+        System.out.println("Result headers:\n" + record.getHeaders());
+        System.out.println("Result key:\n" + record.getKey());
+        System.out.println("Result event:\n" + record.getValue());
         return 0;
     }
 

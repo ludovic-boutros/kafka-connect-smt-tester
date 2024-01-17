@@ -1,5 +1,7 @@
 package bzh.lboutros.tester;
 
+import bzh.lboutros.tester.record.Record;
+import bzh.lboutros.tester.record.RecordSupplier;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.runtime.TransformationChain;
@@ -12,9 +14,9 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-import static bzh.lboutros.tester.ConnectUtils.getConnectorConfigAsMap;
-import static bzh.lboutros.tester.ConnectUtils.getConverterFromConfig;
+import static bzh.lboutros.tester.ConnectUtils.*;
 
 public class SMTPipelineTester<T extends ConnectRecord<T>> implements AutoCloseable {
     private final Logger log = org.slf4j.LoggerFactory.getLogger(SMTPipelineTester.class);
@@ -55,7 +57,8 @@ public class SMTPipelineTester<T extends ConnectRecord<T>> implements AutoClosea
                     final T current = record;
 
                     log.info("Applying transformation {} to {}",
-                            transformation.getClass().getName(), record);
+                            transformation.getClass().getName(),
+                            record);
                     // execute the operation
                     record = transformation.apply(current);
 
@@ -67,17 +70,19 @@ public class SMTPipelineTester<T extends ConnectRecord<T>> implements AutoClosea
         };
     }
 
-    public Result transformDataFromFile(String inputTopic, String inputFilename, ConnectUtils.RecordSupplier<T> recordSupplier) throws IOException {
-        recordSupplier.setTopic(inputTopic);
-        recordSupplier.setFilename(inputFilename);
+    public Record transformDataFromFile(RecordSupplier<T> recordSupplier) throws IOException {
         recordSupplier.setConverter(converter);
 
         T result = transformationChain.apply(recordSupplier.get());
-        return new Result(getResultOutputEventAsNormalizedPrettyString(result), result.topic());
+        // TODO: Do something with the output converted bytes.
+        // For now, just call the converter to make sure it doesn't throw an exception.
+        byte[] bytes = recordSupplier.postProcess(result);
 
-    }
-
-    private String getResultOutputEventAsNormalizedPrettyString(T result) throws IOException {
-        return ConnectUtils.getResultOutputEventAsNormalizedPrettyString(result, converter);
+        TreeMap<String, String> headerMap = new TreeMap<>();
+        result.headers().forEach(header -> headerMap.put(header.key(), header.value().toString()));
+        return new Record(headerMap,
+                result.key().toString(),
+                getResultOutputEventAsMap(bytes),
+                result.topic());
     }
 }

@@ -1,15 +1,16 @@
 package bzh.lboutros;
 
-import bzh.lboutros.tester.ConnectUtils;
-import bzh.lboutros.tester.Result;
 import bzh.lboutros.tester.SMTPipelineTestBase;
+import bzh.lboutros.tester.record.Record;
+import bzh.lboutros.tester.record.SinkRecordSupplier;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static bzh.lboutros.tester.ConnectUtils.getJsonFileAsNormalizedPrettyString;
+import static bzh.lboutros.tester.ConnectUtils.getRecordFromFile;
+import static bzh.lboutros.tester.ConnectUtils.getResultRecordAsNormalizedPrettyString;
 
 public class SplunkHECSinkSMTPipelineTest extends SMTPipelineTestBase<SinkRecord> {
     @Override
@@ -20,14 +21,14 @@ public class SplunkHECSinkSMTPipelineTest extends SMTPipelineTestBase<SinkRecord
     @Test
     public void testInternalServerEvent() throws IOException {
         // Given
-        String inputFilename = "internal-server-ouput-event.json";
-        String inputTopic = "splunk._internal_servers";
-        String expectedOutput = getJsonFileAsNormalizedPrettyString("internal-server-splunk-input-event.json");
+        String expectedOutput = getResultRecordAsNormalizedPrettyString(
+                getRecordFromFile("internal-server-splunk-input-event.json"));
+        SinkRecordSupplier recordSupplier = new SinkRecordSupplier("internal-server-output-event.json");
 
         // When
-        Result result = super.transformDataFromFile(inputTopic, inputFilename, new ConnectUtils.SinkRecordSupplier());
+        Record record = super.transformDataFromFile(recordSupplier);
 
         // Then
-        Assertions.assertEquals(expectedOutput, result.getValue());
+        Assertions.assertEquals(expectedOutput, getResultRecordAsNormalizedPrettyString(record));
     }
 }

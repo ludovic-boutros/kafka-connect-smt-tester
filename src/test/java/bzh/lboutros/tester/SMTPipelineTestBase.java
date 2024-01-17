@@ -1,5 +1,7 @@
 package bzh.lboutros.tester;
 
+import bzh.lboutros.tester.record.Record;
+import bzh.lboutros.tester.record.RecordSupplier;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +28,7 @@ public abstract class SMTPipelineTestBase<T extends ConnectRecord<T>> {
         tester.close();
     }
 
-    protected Result transformDataFromFile(String inputTopic, String inputFilename, ConnectUtils.RecordSupplier<T> supplier) throws IOException {
-        return tester.transformDataFromFile(inputTopic, inputFilename, supplier);
+    protected Record transformDataFromFile(RecordSupplier<T> supplier) throws IOException {
+        return tester.transformDataFromFile(supplier);
     }
 }
