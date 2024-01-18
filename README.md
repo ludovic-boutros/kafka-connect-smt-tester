@@ -20,8 +20,28 @@ the `target/components/packages` directory to the `connect-plugins` directory.
 
 # Usage as CLI
 
+Example:
+
 ```shell
-./smt-test -c src/test/resources/splunk-s2s-source-connector.json -p connect-plugins -i src/test/resources/internal-server-input-event.json -t input-topic
+./smt-test -c src/test/resources/splunk-s2s-source-connector.json -p connect-plugins -i src/test/resources/internal-server-input-event.json --type source
+```
+
+The general usage is:
+
+```shell
+Missing required options: '--connector-config=<connectorConfigFile>', '--plugin-path=<pluginPath>', '--input-event=<inputEventFile>'
+Usage: test [-hV] -c=<connectorConfigFile> -i=<inputEventFile> -p=<pluginPath>
+            [--type=<type>]
+Tests a Kafka Connect Connector SMT pipeline with a given event input.
+  -c, --connector-config=<connectorConfigFile>
+                      The Connector configuration file.
+  -h, --help          Show this help message and exit.
+  -i, --input-event=<inputEventFile>
+                      The event input file.
+  -p, --plugin-path=<pluginPath>
+                      The Connector needed plugin path.
+      --type=<type>   source or sink connector. Default: source.
+  -V, --version       Print version information and exit.
 ```
 
 # Usage for unit testing
