@@ -13,12 +13,17 @@ The needed transform packages for unit tests are:
 - confluent connect transformations: https://www.confluent.io/hub/confluentinc/connect-transforms
 - jcustenborder common
   transformations: https://www.confluent.io/hub/jcustenborder/kafka-connect-transform-common (https://github.com/jcustenborder/kafka-connect-transform-common)
-- my extended Hoist transformation: https://github.com/ludovic-boutros/kafka-custom-transforms
+- my extended Hoist
+  transformation: https://github.com/ludovic-boutros/kafka-custom-transforms/releases/download/v1.0/lboutros-kafka-custom-transforms-1.0.zip (https://github.com/ludovic-boutros/kafka-custom-transforms)
 
-For the last one, you just need to package it with `mvn package` and copy the zip package from
-the `target/components/packages` directory to the `connect-plugins` directory.
+A simple script is provided to download and unzip the needed
+transforms: [get-smt-packages.sh](connect-plugins/get-smt-packages.sh).
+This script uses the confluent-hub script. You can download it
+here: https://docs.confluent.io/current/connect/managing/confluent-hub/client.html#confluent-hub-client.
 
-# Usage as CLI
+# Usage
+
+## CLI
 
 Example:
 
@@ -26,7 +31,7 @@ Example:
 ./smt-test -c src/test/resources/splunk-s2s-source-connector.json -p connect-plugins -i src/test/resources/internal-server-input-event.json --type source
 ```
 
-The general usage is:
+The general CLI usage is:
 
 ```shell
 Missing required options: '--connector-config=<connectorConfigFile>', '--plugin-path=<pluginPath>', '--input-event=<inputEventFile>'
@@ -44,7 +49,7 @@ Tests a Kafka Connect Connector SMT pipeline with a given event input.
   -V, --version       Print version information and exit.
 ```
 
-# Usage for unit testing
+## Usage for unit testing
 
 ```shell
 mvn test
