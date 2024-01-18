@@ -8,6 +8,16 @@ You can use it as a CLI or as a library for unit testing.
 
 First you need to unzip kafka connect transforms in the `connect-plugins` directory.
 
+The needed transform packages for unit tests are:
+
+- confluent connect transformations: https://www.confluent.io/hub/confluentinc/connect-transforms
+- jcustenborder common
+  transformations: https://www.confluent.io/hub/jcustenborder/kafka-connect-transform-common (https://github.com/jcustenborder/kafka-connect-transform-common)
+- my extended Hoist transformation: https://github.com/ludovic-boutros/kafka-custom-transforms
+
+For the last one, you just need to package it with `mvn package` and copy the zip package from
+the `target/components/packages` directory to the `connect-plugins` directory.
+
 # Usage as CLI
 
 ```shell
