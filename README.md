@@ -21,6 +21,12 @@ transforms: [get-smt-packages.sh](connect-plugins/get-smt-packages.sh).
 This script uses the confluent-hub script. You can download it
 here: https://docs.confluent.io/current/connect/managing/confluent-hub/client.html#confluent-hub-client.
 
+You can use it directly using maven exec plugin:
+
+```shell
+mvn exec:exec
+```
+
 # Usage
 
 ## CLI
