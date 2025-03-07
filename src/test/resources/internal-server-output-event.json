@@ -13,7 +13,7 @@
       "aws_instanceid": "i-XXXXXXXX",
       "aws_tagname": "my_tag",
       "aws_region": "eu-west-1",
-      "aws_accountid": 12353453,
+      "aws_accountid": 12345,
       "aws_aspirecode": "eu",
       "code_project": "my_code",
       "code_environment": "my_env"

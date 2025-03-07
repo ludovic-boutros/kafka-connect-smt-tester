@@ -50,6 +50,11 @@ public class Main implements Callable<Integer> {
         System.out.println("Input key:\n" + recordFromFile.getKey());
         System.out.println("Input event:\n" + recordFromFile.getValue());
 
+        if (record == null) {
+            System.out.println("No result.");
+            return 0;
+        }
+
         System.out.println("Result topic: " + record.getTopic());
         System.out.println("Result headers:\n" + record.getHeaders());
         System.out.println("Result key:\n" + record.getKey());

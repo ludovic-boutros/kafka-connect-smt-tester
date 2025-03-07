@@ -4,13 +4,13 @@ import bzh.lboutros.tester.SMTPipelineTestBase;
 import bzh.lboutros.tester.record.Record;
 import bzh.lboutros.tester.record.SourceRecordSupplier;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static bzh.lboutros.tester.ConnectUtils.getRecordFromFile;
 import static bzh.lboutros.tester.ConnectUtils.getResultRecordAsNormalizedPrettyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class S2SSourceSMTPipelineTest extends SMTPipelineTestBase<SourceRecord> {
@@ -30,6 +30,6 @@ public class S2SSourceSMTPipelineTest extends SMTPipelineTestBase<SourceRecord> 
         Record record = super.transformDataFromFile(recordSupplier);
 
         // Then
-        Assertions.assertEquals(expectedOutput, getResultRecordAsNormalizedPrettyString(record));
+        assertEquals(expectedOutput, getResultRecordAsNormalizedPrettyString(record));
     }
 }

@@ -74,6 +74,9 @@ public class SMTPipelineTester<T extends ConnectRecord<T>> implements AutoClosea
         recordSupplier.setConverter(converter);
 
         T result = transformationChain.apply(recordSupplier.get());
+        if (result == null) {
+            return null;
+        }
         // TODO: Do something with the output converted bytes.
         // For now, just call the converter to make sure it doesn't throw an exception.
         byte[] bytes = recordSupplier.postProcess(result);
